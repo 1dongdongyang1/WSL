@@ -1,0 +1,4 @@
+Makefile
+log.txt
+myfile
+myfile.c
