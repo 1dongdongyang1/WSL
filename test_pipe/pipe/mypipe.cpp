@@ -17,7 +17,7 @@ int main()
     int n = pipe(fds);
     assert(n == 0);
 
-    // 第二部，fork
+    // 第二步，fork
     pid_t id = fork();
     assert(id >= 0);
     if (id == 0)
