@@ -1,0 +1,6 @@
+apple:苹果
+banana:香蕉
+hello:你好
+ddy:东东羊
+success:成功
+ym:羊蜜

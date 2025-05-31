@@ -16,11 +16,13 @@
 namespace Server
 {
     using namespace std;
-    typedef function<void(string, uint16_t, string)> fun_t;
+
+    typedef function<void(int, string, uint16_t, string)> fun_t;
+    
     static const string defaultIp = "0.0.0.0";
     static const int gnum = 1024;
 
-    enum {USAGE_ARR = 1, SOCKET_ERR, BIND_ERR };
+    enum {USAGE_ARR = 1, SOCKET_ERR, BIND_ERR, OPEN_ERR };
 
     class udpServer
     {
@@ -66,11 +68,12 @@ namespace Server
                     uint16_t clientPort = ntohs(peer.sin_port);
                     string message = buffer;
 
-                    cout << clientIp << "[" << clientPort << "]#" << message << endl;
-                    _callback(clientIp, clientPort, message);
+                    cout << "Client" << clientIp << "[" << clientPort << "]#" << message << endl;
+                    _callback(_sockfd, clientIp, clientPort, message);
                 }
             }
         }
+
         ~udpServer()
         {
 
