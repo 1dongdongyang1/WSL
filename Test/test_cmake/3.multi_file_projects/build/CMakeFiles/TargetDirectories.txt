@@ -1,0 +1,6 @@
+/home/ddy/Test/test_cmake/3.multi_file_projects/build/CMakeFiles/edit_cache.dir
+/home/ddy/Test/test_cmake/3.multi_file_projects/build/CMakeFiles/rebuild_cache.dir
+/home/ddy/Test/test_cmake/3.multi_file_projects/build/src/CMakeFiles/greet.dir
+/home/ddy/Test/test_cmake/3.multi_file_projects/build/src/CMakeFiles/app.dir
+/home/ddy/Test/test_cmake/3.multi_file_projects/build/src/CMakeFiles/edit_cache.dir
+/home/ddy/Test/test_cmake/3.multi_file_projects/build/src/CMakeFiles/rebuild_cache.dir

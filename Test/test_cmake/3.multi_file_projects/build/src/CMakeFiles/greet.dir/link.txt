@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgreet.a CMakeFiles/greet.dir/greet.cc.o
+/usr/bin/ranlib libgreet.a

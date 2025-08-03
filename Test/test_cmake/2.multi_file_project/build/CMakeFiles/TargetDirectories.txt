@@ -1,0 +1,3 @@
+/home/ddy/Test/test_cmake/2.multi_file_project/build/CMakeFiles/app.dir
+/home/ddy/Test/test_cmake/2.multi_file_project/build/CMakeFiles/edit_cache.dir
+/home/ddy/Test/test_cmake/2.multi_file_project/build/CMakeFiles/rebuild_cache.dir
