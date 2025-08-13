@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/cdns.dir/dns.o -o cdns   -L/home/ddy/muduo/examples/cdns  libmuduo_cdns.a -lmuduo_net -lcares 
