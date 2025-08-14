@@ -14,8 +14,8 @@
                                     不推荐直接对着数组加锁，锁的粒度大 -> 采用信号量
 4. 注意：
     1. 环形队列是模板类，声明定义不能拆开文件写
-    2. 信号量使用的是POSIX接口，只能在Linux平台下使用，无法跨平台   想跨平台得使用C++20的semaphore
-    3. -std=c++20
+    2. -std=c++20
+    3. 对比队列，环形队列最大的问题是无法扩容
 */
 
 #pragma once
@@ -32,8 +32,11 @@ class RingQueue
 public:
     RingQueue(const int cap = g_cap);
     void push(const T& in);
-    void pop(T* out);       // 注意这里与STL里队列的接口不一致
-                            // STL队列的接口里有back，可以直接取到尾值，但是这里是环形队列，没有头尾
+    void pop();
+    T* back();
+    T* front();
+    size_t size();
+    bool empty();
 private:
     std::vector<T> _queue;
     std::mutex _pmutex;
@@ -46,8 +49,9 @@ private:
 
 template<class T>
 RingQueue<T>::RingQueue(const int cap)
-    :_queue(cap), _pmutex(), _cmutex(),_psem(cap),_csem(0), _pstep(0), _cstep(0)
-{}
+    :_queue(cap), _pmutex(), _cmutex(), _psem(cap), _csem(0), _pstep(0), _cstep(0)
+{
+}
 
 template<class T>
 void RingQueue<T>::push(const T& in)
@@ -62,13 +66,37 @@ void RingQueue<T>::push(const T& in)
 }
 
 template<class T>
-void RingQueue<T>::pop(T* out)
+void RingQueue<T>::pop()
 {
     _csem.acquire();
-    {
-        std::lock_guard<std::mutex> lock(_cmutex);
-        *out = _queue[_cstep++];
-        _cstep %= _queue.size();
-    }
+    ++_cstep %= _queue.size();
     _psem.release();
+}
+
+template<class T>
+T* RingQueue<T>::back()
+{
+    std::lock_guard<std::mutex> lock(_cmutex);
+    return _queue[_cstep];  // 环形队列里本身就是存的地址
+}
+
+template<class T>
+T* RingQueue<T>::front()
+{
+    std::lock_guard<std::mutex> lock(_cmutex);
+    return _queue[_pstep];
+}
+
+template<class T>
+size_t RingQueue<T>::size()
+{
+    return _queue.size();
+}
+
+template<class T>
+bool RingQueue<T>::empty()
+{
+    if (_pstep != _cstep) return false;
+    if (_psem > 0) return true;
+    else return false;
 }
