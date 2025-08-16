@@ -7,7 +7,7 @@ class PrintTask : public Task {
     int _id;
 public:
     PrintTask(int id) : _id(id) {}
-    void run() override {
+    Any run() override {
         std::cout << "Task " << _id << " running in thread "
                   << std::this_thread::get_id() << "\n";
     }
