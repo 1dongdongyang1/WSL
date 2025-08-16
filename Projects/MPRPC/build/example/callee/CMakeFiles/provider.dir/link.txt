@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/provider.dir/userservice.cc.o CMakeFiles/provider.dir/__/user.pb.cc.o -o ../../../bin/provider   -L/home/ddy/Projects/MPRPC/src  -Wl,-rpath,/home/ddy/Projects/MPRPC/src:/home/ddy/Projects/MPRPC/lib ../../../lib/libmprpc.so -lprotobuf 
