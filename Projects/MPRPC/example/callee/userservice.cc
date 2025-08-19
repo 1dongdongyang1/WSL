@@ -1,5 +1,4 @@
 #include "user.pb.h"
-#include "rpcprovider.h"
 #include "mprpcapplication.h"
 #include <iostream>
 #include <string>
@@ -18,12 +17,18 @@ public:
         std::cout << "Login()" << std::endl;
         return true;
     }
-    
+
+    bool Register(int id, const std::string& name, const std::string& pwd)
+    {
+        std::cout << "Register()" << std::endl;
+        return true;
+    }
+
     // 重写基类UserServiceRPC的虚函数，下面的方法是框架来直调用的
-    virtual void Login(::google::protobuf::RpcController* controller, 
+    void Login(::google::protobuf::RpcController* controller,
         const ::fixbug::LoginRequest* request,
         ::fixbug::LoginResponse* response,
-        ::google::protobuf::Closure* done)
+        ::google::protobuf::Closure* done)override
     {
         // 框架上报给业务，做业务处理
         std::string name = request->name();
@@ -39,6 +44,24 @@ public:
         response->set_success(login_result);
 
         // 执行回调     -> 进行响应的序列化和网络发送(框架实现)
+        done->Run();
+    }
+
+    virtual void Register(::google::protobuf::RpcController* controller,
+        const ::fixbug::RegisterRequest* request,
+        ::fixbug::RegisterResponse* response,
+        ::google::protobuf::Closure* done)
+    {
+        int id = request->id();
+        std::string name = request->name();
+        std::string pwd = request->pwd();
+
+        bool register_result = Register(id, name, pwd);
+
+        response->mutable_result()->set_errcode(0);
+        response->mutable_result()->set_errmsg("");
+        response->set_success(register_result);
+
         done->Run();
     }
 };
