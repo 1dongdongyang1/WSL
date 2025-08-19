@@ -13,5 +13,8 @@ public:
     // 查询配置项信息
     std::string Load(const std::string& key);
 private:
+    // 去掉字符串前后的空格
+    void Trim(std::string& src_buf);
+private:
     std::unordered_map<std::string, std::string> m_configMap;
 };
