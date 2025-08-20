@@ -1,3 +1,4 @@
+#include "logger.h"
 #include "friend.pb.h"
 #include "mprpcapplication.h"
 #include <string>
@@ -45,6 +46,7 @@ int main(int argc, char** argv)
 
     // 启动rpc服务节点，阻塞等待远程rpc调用请求
     provider.Run();
+
 
     return 0;
 }
