@@ -61,14 +61,11 @@ enum LogLevel
 class Logger : noncopyable
 {
 public:
-    // 获取日志唯一单例对象
     static Logger& instance();
-    // 设置日志等级
     void setLogLevel(int level);
-    // 写日志
     void log(std::string msg);
 private:
     Logger() {}
-private:
+    
     int logLevel_;
 };
