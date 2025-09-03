@@ -3,6 +3,7 @@
 #include "noncopyable.h"
 
 #include <string>
+#include <stdlib.h>
 
 #define LOG_INFO(logmsgFormat, ...) \
 do  \
@@ -32,6 +33,7 @@ do  \
     char buf[1024] = {0};                   \
     snprintf(buf, 1024, logmsgFormat, ##__VA_ARGS__);   \
     logger.log(buf);                        \
+    exit(-1);                               \
 }while (0)
 
 #ifdef MUDEBUG
