@@ -1,5 +1,6 @@
 #include "Channel.h"
 #include "Logger.h"
+#include "EventLoop.h"
 
 #include <sys/epoll.h>
 
@@ -23,15 +24,13 @@ void Channel::tie(const std::shared_ptr<void>& obj)
 
 void Channel::remove()
 {
-    // add code
-    // loop->removeChannel(this);
+    loop_->removeChannel(this);
 }
 
 // EventLoop -> channelList poller channel通过eventloop调用poller的相关方法
 void Channel::update()
 {
-    // add code
-    // loop->updateChannel(this);
+    loop_->updateChannel(this);
 }
 
 // poller通知EventLoop，EventLoop调用channel  与update一反

@@ -24,7 +24,7 @@ public:
     virtual void removeChannel(Channel* channel) = 0;
 
     // 判断参数channel是否在当前Poller里
-    virtual bool hasChannel(Channel* channel) const;
+    bool hasChannel(Channel* channel) const;
 
     // EventLoop可以通过该接口获取默认的IO复用的具体实现
     static Poller* newDefaultPoller(EventLoop* loop);
