@@ -1,5 +1,3 @@
-#pragma once
-
 #include "CurrentThread.h"
 
 namespace CurrentThread
