@@ -7,7 +7,7 @@
 class InetAddress
 {
 public:
-    InetAddress(std::string ip, uint16_t port);
+    InetAddress(uint16_t port = 8080, std::string ip = "127.0.0.1");
     explicit InetAddress(const sockaddr_in& addr);
 
     std::string toIp() const;

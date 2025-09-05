@@ -9,7 +9,7 @@ Thread::Thread(ThreadFunc func, const std::string& name)
     :started_(false)
     , joined_(false)
     , tid_(0)
-    , func_(func)
+    , func_(std::move(func))
     , name_(name)
 {
     setDefaultName();

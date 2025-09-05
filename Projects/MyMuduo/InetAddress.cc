@@ -4,7 +4,7 @@
 #include <strings.h>
 #include <string.h>
 
-InetAddress::InetAddress(std::string ip, uint16_t port)
+InetAddress::InetAddress(uint16_t port, std::string ip)
 {
     bzero(&addr_, sizeof(addr_));
     addr_.sin_family = AF_INET;
