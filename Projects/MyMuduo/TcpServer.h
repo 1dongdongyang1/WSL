@@ -15,6 +15,14 @@
 #include <functional>
 #include <unordered_map>
 
+/**
+ *                                   TcpServer -> loop
+ *            ConnectionMap        EventLoopPool            Acceptor
+ *            TcpConnection   ChannelList  poller
+ *       buffer           channel          ChannelMap<fd,channel>
+ *                      fd    回调
+ */
+
 // 对外的服务器编程使用的类
 class TcpServer : noncopyable
 {
