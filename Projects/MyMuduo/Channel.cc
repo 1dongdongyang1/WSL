@@ -4,9 +4,9 @@
 
 #include <sys/epoll.h>
 
-const int kNoneEvent = 0;
-const int kReadEvent = EPOLLIN | EPOLLPRI;
-const int kWriteEvent = EPOLLOUT;
+const int Channel::kNoneEvent = 0;
+const int Channel::kReadEvent = EPOLLIN | EPOLLPRI;
+const int Channel::kWriteEvent = EPOLLOUT;
 
 // EventLoop -> channelList poller
 Channel::Channel(EventLoop* loop, int fd)
