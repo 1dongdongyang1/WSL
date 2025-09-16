@@ -2,17 +2,19 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"sync"
+	"time"
 )
 
 type Server struct {
-	Ip 	 string
+	Ip   string
 	Port int
 
 	// 在线用户的列表
 	OnlineMap map[string]*User
-	mapLock sync.RWMutex
+	mapLock   sync.RWMutex
 
 	// 消息广播的channel
 	Message chan string
@@ -21,58 +23,112 @@ type Server struct {
 // 创建一个server的接口
 func NewServer(ip string, port int) *Server {
 	server := &Server{
-		Ip: ip,
-		Port: port,
+		Ip:        ip,
+		Port:      port,
 		OnlineMap: make(map[string]*User),
-		Message: make(chan string),
+		Message:   make(chan string),
 	}
 
 	return server
 }
 
 // 监听Message广播消息channel的goroutine，一旦有消息就发送给全部在线的User
-func (this *Server) ListenMessage() {
+func (s *Server) ListenMessage() {
 	for {
-		msg := <-this.Message
+		msg := <-s.Message
 
 		// 将msg发送给全部在线的User
-		this.mapLock.Lock()
-		for _, cli := range this.OnlineMap {
+		s.mapLock.Lock()
+		for _, cli := range s.OnlineMap {
 			cli.C <- msg
 		}
-		this.mapLock.Unlock()
+		s.mapLock.Unlock()
 	}
 }
 
 // 广播消息的方法
-func (this *Server) BroadCast(user *User, msg string) {
+func (s *Server) BroadCast(user *User, msg string) {
 	sendMsg := "[" + user.Addr + "]" + user.Name + ":" + msg
 
-	this.Message <- sendMsg
+	s.Message <- sendMsg
 }
 
-func (this *Server) Handler(conn net.Conn) {
+func (s *Server) Handler(conn net.Conn) {
 	// 当前连接的业务
 	// fmt.Println("连接成功...")
 
-	user := newUser(conn)
+	user := newUser(conn, s)
 
-	// 用户上线，将用户加入到onlineMap
-	this.mapLock.Lock()
-	this.OnlineMap[user.Name] = user
-	this.mapLock.Unlock()
+	// 用户上线
+	user.Online()
 
-	// 广播当前用户上线消息
-	this.BroadCast(user, "已上线")
+	// 监听用户是否活跃的管道
+	isLive := make(chan bool)
+
+	// 接收客户端发送的消息
+	go func() {
+		buf := make([]byte, 4096)
+		for {
+			n, err := conn.Read(buf)
+			if n == 0 {
+				user.Offline()
+				return
+			}
+
+			if err != nil && err != io.EOF {
+				fmt.Println("Conn Read err:", err)
+				return
+			}
+
+			// 提取用户的消息(去除'\n')
+			msg := string(buf[:n-1])
+
+			// 针对用户的msg进行消息处理
+			user.DoMessage(msg)
+
+			// 用户的任意消息，代表当前用户是活跃的
+			isLive <- true
+		}
+	}()
+
+	// 定时器
+	timeout := time.NewTicker(time.Second * 100)
+	defer timeout.Stop()
 
 	// 当前handler阻塞
-	select {}
+	for {
+		select {
+		case <-isLive:
+			// 当前用户是活跃的，应该重置定时器
+			timeout.Stop()
+			select {
+			case <-timeout.C:
+			default:
+			}
+			timeout.Reset(time.Second * 100)
+
+		case <-timeout.C:
+			// 已经超时
+			// 将当前的User强制关闭
+
+			user.SendMsg("你被踢了")
+
+			// 销毁用的资源
+			close(user.C)
+
+			// 关闭连接
+			conn.Close()
+
+			// 退出当前的Handler
+			return // runtime.Goexit()
+		}
+	}
 }
 
 // 启动服务器的接口
-func (this *Server) Start() {
+func (s *Server) Start() {
 	// socket listen
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", this.Ip, this.Port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.Ip, s.Port))
 	if err != nil {
 		fmt.Println("net.Listen err:", err)
 		return
@@ -81,7 +137,7 @@ func (this *Server) Start() {
 	defer listener.Close()
 
 	// 启动监听Message的goroutine
-	go this.ListenMessage()
+	go s.ListenMessage()
 
 	for {
 		// accept
@@ -92,6 +148,6 @@ func (this *Server) Start() {
 		}
 
 		// do handler
-		go this.Handler(conn)
+		go s.Handler(conn)
 	}
 }
