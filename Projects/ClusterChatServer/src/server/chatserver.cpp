@@ -51,7 +51,7 @@ void ChatServer::onMessage(const TcpConnectionPtr& conn,
 {
     string buf = buffer->retrieveAllAsString();
 
-    LOG_INFO << buf;
+    // LOG_INFO(buf.c_str());
     
     // 数据的反序列化
     json js = json::parse(buf);

@@ -1,10 +1,10 @@
 #ifndef CHATSERVER_H
 #define CHATSERVER_H
 
-#include <muduo/net/TcpServer.h>
-#include <muduo/net/EventLoop.h>
-using namespace muduo;
-using namespace muduo::net;
+#include <mymuduo/TcpServer.h>
+#include <mymuduo/EventLoop.h>
+
+using namespace std;
 
 class ChatServer
 {

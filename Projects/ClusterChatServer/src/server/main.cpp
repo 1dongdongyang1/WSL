@@ -1,5 +1,6 @@
 #include "chatserver.hpp"
 #include "chatservice.hpp"
+
 #include <iostream>
 #include <signal.h>
 using namespace std;
@@ -26,7 +27,7 @@ int main(int argc, char** argv)
     }
 
     EventLoop loop;
-    InetAddress addr(ip, port);
+    InetAddress addr(port, ip);
     ChatServer server(&loop, addr, "ChatServer");
 
     server.start();
