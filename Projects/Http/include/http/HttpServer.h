@@ -26,16 +26,17 @@ namespace http {
         muduo::net::EventLoop* getLoop() const { return server_.getLoop(); }
 
     private:
-        muduo::net::InetAddress                 listenAddr_;    
-        muduo::net::EventLoop                   mainLoop_;
-        muduo::net::TcpServer                   server_;
-        HttpCallback                            httpCallback_;
-
         void onConnection(const muduo::net::TcpConnectionPtr& conn);
         void onMessage(const muduo::net::TcpConnectionPtr& conn,
             muduo::net::Buffer* buf,
             muduo::Timestamp receiveTime);
         void onRequest(const muduo::net::TcpConnectionPtr& conn, const HttpRequest& request);
+
+    private:
+        muduo::net::InetAddress                 listenAddr_;    
+        muduo::net::EventLoop                   mainLoop_;
+        muduo::net::TcpServer                   server_;
+        HttpCallback                            httpCallback_;
 
     };
 }

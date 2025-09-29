@@ -29,11 +29,13 @@ namespace http {
 
         // set
         void reset();
-        
+
+    private:
+        bool processRequestLine(const char* begin, const char* end);
+
     private:
         HttpRequestParseState   state_;     // 当前解析状态
         HttpRequest             request_;   // 解析得到的HTTP请求
 
-        bool processRequestLine(const char* begin, const char* end);
     };
 }

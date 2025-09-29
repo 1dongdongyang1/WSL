@@ -1,7 +1,7 @@
 #include "HttpContext.h"
 
 namespace http {
-
+    
     bool HttpContext::parseRequest(muduo::net::Buffer* buf, muduo::Timestamp receiveTime) {
         bool ok = true;     // 解析每行请求格式是否正确
         bool hasMore = true;
