@@ -9,6 +9,8 @@
 
 #include "SessionManager.h"
 #include "Router.h"
+#include "MiddlewareChain.h"
+#include "CorsMiddleware.h"
 
 class HttpRequest;
 class HttpResponse;
@@ -47,12 +49,17 @@ namespace http {
         void setSessionManager(std::unique_ptr<session::SessionManager> sessionManager) { sessionManager_ = std::move(sessionManager); }
         session::SessionManager* getSessionManager() const { return sessionManager_.get(); }
 
+        // middleware
+        void addMiddleware(std::shared_ptr<middleware::Middleware> middleware) { middlewareChain_.addMiddleware(middleware); }
+
     private:
         void onConnection(const muduo::net::TcpConnectionPtr& conn);
         void onMessage(const muduo::net::TcpConnectionPtr& conn,
             muduo::net::Buffer* buf,
             muduo::Timestamp receiveTime);
         void onRequest(const muduo::net::TcpConnectionPtr& conn, const HttpRequest& request);
+
+        void handleRequest(const HttpRequest& request, HttpResponse* response);
 
     private:
         muduo::net::InetAddress                     listenAddr_;    
@@ -61,7 +68,7 @@ namespace http {
         HttpCallback                                httpCallback_;
         router::Router                              router_;
         std::unique_ptr<session::SessionManager>    sessionManager_;
-
+        middleware::MiddlewareChain                 middlewareChain_;
     };
 }
 
