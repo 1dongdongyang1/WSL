@@ -1,25 +1,37 @@
 #include "HttpServer.h"
 #include "HttpContext.h"
-#include "HttpRequest.h"
-#include "HttpResponse.h"
-
 
 #include <muduo/base/Logging.h>
 #include <muduo/net/Buffer.h>
 
 namespace http {
 
-    HttpServer::HttpServer(muduo::net::EventLoop* loop,
-        const muduo::net::InetAddress& listenAddr,
-        const std::string& nameArg)
-        : listenAddr_(listenAddr)
-        , server_(loop, listenAddr, nameArg)
-        , httpCallback_(nullptr) {
+    // default callback
+    void defaultHttpCallback(const HttpRequest& req, HttpResponse* resp) {
+        resp->setStatusCode(HttpResponse::k404NotFound);
+        resp->setStatusMessage("Not Found");
+        resp->setCloseConnection(true);
+    }
+
+    HttpServer::HttpServer(int port,
+        const std::string& name,
+        bool useSsl,
+        muduo::net::TcpServer::Option option)
+        : listenAddr_(port)
+        , server_(&mainLoop_, listenAddr_, name, option)
+        , httpCallback_(defaultHttpCallback)
+        , router_()
+        , sessionManager_(nullptr)
+        , middlewareChain_()
+        , sslContext_(nullptr)
+        , useSsl_(useSsl) {
         server_.setConnectionCallback(
             std::bind(&HttpServer::onConnection, this, std::placeholders::_1));
         server_.setMessageCallback(
-            std::bind(&HttpServer::onMessage, this, std::placeholders::_1,
-                std::placeholders::_2, std::placeholders::_3));
+            std::bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+        // 默认添加CORS中间件
+        addMiddleware(std::make_shared<middleware::CorsMiddleware>());
     }
 
     void HttpServer::start() {
@@ -28,9 +40,29 @@ namespace http {
         mainLoop_.loop();
     }
 
+    void HttpServer::setSslConfig(const ssl::SslConfig& config) {
+        sslContext_ = std::make_unique<ssl::SslContext>(config);
+        if (!sslContext_->initialize()) {
+            LOG_FATAL << "Failed to initialize SSL context";
+            exit(EXIT_FAILURE);
+        }
+    }
+
     void HttpServer::onConnection(const muduo::net::TcpConnectionPtr& conn) {
         if (conn->connected()) {
+            if (useSsl_) {
+                auto sslConn = std::make_unique<ssl::SslConnection>(conn, sslContext_.get());
+                sslConn->setMessageCallback(
+                    std::bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+                sslConnections_[conn] = std::move(sslConn);
+                sslConnections_[conn]->startHandshake();
+            }
             conn->setContext(HttpContext());
+        }
+        else {
+            if (useSsl_) {
+                sslConnections_.erase(conn);
+            }
         }
     }
 
@@ -38,6 +70,27 @@ namespace http {
         muduo::net::Buffer* buf,
         muduo::Timestamp receiveTime) {
         try {
+            // if SSL is enabled, process encrypted data
+            if (useSsl_) {
+                LOG_INFO << "SSL is enabled, processing encrypted data";
+                auto it = sslConnections_.find(conn);
+                if (it != sslConnections_.end()) {
+                    LOG_INFO << "Found SSL connection for TcpConnection";
+                    it->second->onRead(conn, buf, receiveTime);
+                    if (!it->second->isHandshakeComplete()) {
+                        LOG_INFO << "SSL handshake not complete, waiting for more data";
+                        return; // Wait until handshake is complete
+                    }
+                    // we can get data from decrypted buffer
+                    muduo::net::Buffer* decryptedBuf = it->second->getDecryptedBuffer();
+                    if (decryptedBuf->readableBytes() == 0) {
+                        LOG_INFO << "No decrypted data available, waiting for more data";
+                        return; // No decrypted data available yet
+                    }
+                    buf = decryptedBuf; // Switch to decrypted buffer for HTTP parsing
+                    LOG_INFO << "decrypted data is not empty";
+                }
+            }
             HttpContext* context = boost::any_cast<HttpContext>(conn->getMutableContext());
             if (!context->parseRequest(buf, receiveTime)) {
                 LOG_ERROR << "HttpServer::onMessage no context";
@@ -94,7 +147,7 @@ namespace http {
         }
         catch (const HttpResponse& res) {
             // 处理中间件抛出的响应(如CORS预检请求)
-            *response = res; 
+            *response = res;
         }
         catch (const std::exception& e) {
             // 错误处理

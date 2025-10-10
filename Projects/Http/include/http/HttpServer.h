@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <functional>
 
@@ -7,13 +8,13 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
 
-#include "SessionManager.h"
+#include "HttpRequest.h"
+#include "HttpResponse.h"
 #include "Router.h"
+#include "SessionManager.h"
 #include "MiddlewareChain.h"
 #include "CorsMiddleware.h"
-
-class HttpRequest;
-class HttpResponse;
+#include "SslConnection.h"
 
 namespace http {
 
@@ -21,9 +22,10 @@ namespace http {
     public:
         using HttpCallback = std::function<void(const HttpRequest&, HttpResponse*)>; 
 
-        HttpServer(muduo::net::EventLoop* loop,
-            const muduo::net::InetAddress& listenAddr,
-            const std::string& nameArg);
+        HttpServer(int port,
+            const std::string& name = "HttpServer",
+            bool useSsl = false,
+            muduo::net::TcpServer::Option option = muduo::net::TcpServer::kNoReusePort);
         ~HttpServer();
 
         void start();
@@ -52,6 +54,10 @@ namespace http {
         // middleware
         void addMiddleware(std::shared_ptr<middleware::Middleware> middleware) { middlewareChain_.addMiddleware(middleware); }
 
+        // SSL
+        void enableSSL(bool enable) { useSsl_ = enable; }
+        void setSslConfig(const ssl::SslConfig& config);
+
     private:
         void onConnection(const muduo::net::TcpConnectionPtr& conn);
         void onMessage(const muduo::net::TcpConnectionPtr& conn,
@@ -69,6 +75,10 @@ namespace http {
         router::Router                              router_;
         std::unique_ptr<session::SessionManager>    sessionManager_;
         middleware::MiddlewareChain                 middlewareChain_;
+        std::unique_ptr<ssl::SslContext>            sslContext_;
+        bool                                        useSsl_;
+        // TcpConnection -> SslConnection
+        std::map<muduo::net::TcpConnectionPtr, std::unique_ptr<ssl::SslConnection>> sslConnections_;
     };
 }
 
