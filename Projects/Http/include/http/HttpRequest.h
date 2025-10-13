@@ -30,7 +30,17 @@ namespace http {
 
         HttpRequest() :method_(kInvalid), version_("Unknown") {}
 
-        void swap(HttpRequest& that);
+        void swap(HttpRequest& that) {
+            std::swap(method_, that.method_);
+            version_.swap(that.version_);
+            path_.swap(that.path_);
+            pathParameters_.swap(that.pathParameters_);
+            queryParameters_.swap(that.queryParameters_);
+            std::swap(receiveTime_, that.receiveTime_);
+            headers_.swap(that.headers_);
+            content_.swap(that.content_);
+            std::swap(contentLength_, that.contentLength_);
+        }
 
         // get
         Method method() const { return method_; }

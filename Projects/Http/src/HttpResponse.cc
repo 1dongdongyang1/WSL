@@ -4,7 +4,6 @@ namespace http {
 
     void HttpResponse::appendToBuffer(muduo::net::Buffer* output) const {
         // Append status line
-        output->append("HTTP/");
         output->append(version_);
         output->append(" ");
         output->append(std::to_string(statusCode_));

@@ -27,8 +27,12 @@ namespace http {
         const HttpRequest& request() const { return request_; }
         HttpRequest& request() { return request_; }
 
-        // set
-        void reset();
+        // reset
+        void reset() {
+            state_ = kExpectRequestLine;
+            HttpRequest dummy;
+            request_.swap(dummy);
+        }
 
     private:
         bool processRequestLine(const char* begin, const char* end);

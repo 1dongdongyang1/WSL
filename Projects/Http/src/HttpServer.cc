@@ -8,6 +8,7 @@ namespace http {
 
     // default callback
     void defaultHttpCallback(const HttpRequest& req, HttpResponse* resp) {
+        (void)req;
         resp->setStatusCode(HttpResponse::k404NotFound);
         resp->setStatusMessage("Not Found");
         resp->setCloseConnection(true);
@@ -17,7 +18,7 @@ namespace http {
         const std::string& name,
         bool useSsl,
         muduo::net::TcpServer::Option option)
-        : listenAddr_(port)
+        : listenAddr_("127.0.0.1", port)
         , server_(&mainLoop_, listenAddr_, name, option)
         , httpCallback_(defaultHttpCallback)
         , router_()
@@ -92,6 +93,8 @@ namespace http {
                 }
             }
             HttpContext* context = boost::any_cast<HttpContext>(conn->getMutableContext());
+            LOG_INFO << "Received data:\n" << buf->toStringPiece().as_string();
+
             if (!context->parseRequest(buf, receiveTime)) {
                 LOG_ERROR << "HttpServer::onMessage no context";
                 conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");
@@ -99,6 +102,7 @@ namespace http {
             }
 
             if (context->gotAll()) {
+                LOG_INFO << "HttpServer::onMessage gotAll";
                 onRequest(conn, context->request());
                 context->reset();
             }
@@ -115,13 +119,16 @@ namespace http {
         bool close = connection == "close" ||
             (request.version() == "HTTP/1.0" && connection != "Keep-Alive");
 
+        LOG_INFO << "request version: " << request.version();
         HttpResponse response(close);
-        httpCallback_(request, &response);
+        response.setVersion(request.version());
+        handleRequest(request, &response);
 
         // 可以给response设置一个成员，判断是否请求的是文件，如果是文件设置为true，并且存在文件位置在这里send出去。
         muduo::net::Buffer buf;
         response.appendToBuffer(&buf);
         LOG_INFO << "Sending response:\n" << buf.toStringPiece().as_string();
+
         conn->send(&buf);
         if (response.closeConnection()) {
             conn->shutdown();

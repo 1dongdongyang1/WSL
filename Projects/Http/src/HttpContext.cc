@@ -1,4 +1,5 @@
 #include "HttpContext.h"
+#include <muduo/base/Logging.h>
 
 namespace http {
     
@@ -6,6 +7,7 @@ namespace http {
         bool ok = true;     // 解析每行请求格式是否正确
         bool hasMore = true;
         while (hasMore) {
+            // 解析请求行
             if (state_ == kExpectRequestLine) {
                 // 查找\r\n 指向\r
                 const char* crlf = buf->findCRLF();
@@ -18,6 +20,7 @@ namespace http {
                     }
                     else {
                         hasMore = false;
+                        LOG_INFO << "HttpServer::parseRequest processRequestLine failed"; 
                     }
                 }
             }
@@ -27,6 +30,7 @@ namespace http {
                     const char* colon = std::find(buf->peek(), crlf, ':');
                     if (colon < crlf) {
                         request_.addHeader(buf->peek(), crlf);
+                        // LOG_INFO << "HttpServer::parseRequest addHeader: " << std::string(buf->peek(), crlf);
                     }
                     else if (buf->peek() == crlf) {
                         // 空行，结束Header
@@ -45,10 +49,14 @@ namespace http {
                                 }
                             }
                             else {
-                                // POST/PUT请求没有Content-Length，是HTTP语法错误
+                                // 没有Content-Length
                                 ok = false;
                                 hasMore = false;
                             }
+                        }
+                        else {
+                            state_ = kGotAll;
+                            hasMore = false;
                         }
                     }
                     else {
@@ -79,6 +87,7 @@ namespace http {
                 hasMore = false;
             }
         }
+        LOG_INFO << "HttpServer::parseRequest ok=" << ok << ", state=" << state_;
         return ok;
     }
 

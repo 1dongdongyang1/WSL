@@ -26,7 +26,6 @@ namespace http {
             const std::string& name = "HttpServer",
             bool useSsl = false,
             muduo::net::TcpServer::Option option = muduo::net::TcpServer::kNoReusePort);
-        ~HttpServer();
 
         void start();
 
