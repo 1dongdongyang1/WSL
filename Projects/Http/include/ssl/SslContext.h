@@ -7,6 +7,7 @@
 #include "SslConfig.h"
 
 namespace ssl {
+
     class SslContext : public muduo::noncopyable {
     public:
         explicit SslContext(const SslConfig& config);
@@ -25,6 +26,4 @@ namespace ssl {
         SSL_CTX*  ctx_;     // SSL context pointer
         SslConfig config_;  // SSL configuration
     };
-
-    using SslContextPtr = std::shared_ptr<SslContext>;
 }

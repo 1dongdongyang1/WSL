@@ -9,16 +9,16 @@ namespace http {
             : sessionId_(sessionId)
             , sessionManager_(sessionManager)
             , maxAge_(maxAge)
-            , lastAccessed_(std::chrono::system_clock::now()) {}
+            , expiryTime_(std::chrono::system_clock::now() + std::chrono::seconds(maxAge)) {
+        }
 
         bool Session::isExpired() const {
             auto now = std::chrono::system_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - lastAccessed_).count();
-            return duration > maxAge_;
+            return now > expiryTime_;
         }
 
         void Session::refresh() {
-            lastAccessed_ = std::chrono::system_clock::now();
+            expiryTime_ = std::chrono::system_clock::now() + std::chrono::seconds(maxAge_);
         }
 
         void Session::set(const std::string& key, const std::string& value) {

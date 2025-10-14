@@ -87,7 +87,7 @@ namespace http {
                 hasMore = false;
             }
         }
-        LOG_INFO << "HttpServer::parseRequest ok=" << ok << ", state=" << state_;
+        // LOG_INFO << "HttpServer::parseRequest ok=" << ok << ", state=" << state_;
         return ok;
     }
 

@@ -17,9 +17,9 @@ namespace http {
         class DbConnection {
         public:
             DbConnection(const std::string& host,
-                         const std::string& user,
-                         const std::string& password,
-                         const std::string& database);
+                const std::string& user,
+                const std::string& password,
+                const std::string& database);
             ~DbConnection();
 
             // 禁止拷贝和赋值
@@ -27,7 +27,7 @@ namespace http {
             DbConnection& operator=(const DbConnection&) = delete;
 
             // 检查连接是否有效
-            bool ping(); 
+            bool ping();
             void reconnect();
             void cleanup();
 
@@ -38,7 +38,8 @@ namespace http {
                     std::unique_ptr<sql::PreparedStatement> pstmt(connection_->prepareStatement(query));
                     bindParams(pstmt.get(), 1, std::forward<Args>(args)...);
                     return pstmt->executeQuery();
-                } catch (const std::exception& e) {
+                }
+                catch (const std::exception& e) {
                     LOG_ERROR << "Query failed: " << e.what() << ", SQL: " << query;
                     throw DbException(e.what());
                 }
@@ -51,28 +52,49 @@ namespace http {
                     std::unique_ptr<sql::PreparedStatement> pstmt(connection_->prepareStatement(query));
                     bindParams(pstmt.get(), 1, std::forward<Args>(args)...);
                     return pstmt->executeUpdate();
-                } catch (const std::exception& e) {
+                }
+                catch (const std::exception& e) {
                     LOG_ERROR << "Update failed: " << e.what() << ", SQL: " << query;
                     throw DbException(e.what());
                 }
             }
 
         private:
-            // 递归中止条件
-            void bindParams(sql::PreparedStatement* pstmt, int index) {}
+            // 递归终止
+            inline void bindParams(sql::PreparedStatement* pstmt, int index) {}
 
+            // 泛型模板
             template<typename T, typename... Args>
             void bindParams(sql::PreparedStatement* pstmt, int index, T&& value, Args&&... args) {
-                pstmt->setString(index, std::to_string(std::forward<T>(value)));
+                using Decayed = std::decay_t<T>;
+
+                if constexpr (std::is_same_v<Decayed, std::string>) {
+                    // 所有 string 类型
+                    pstmt->setString(index, std::forward<T>(value));
+                }
+                else if constexpr (std::is_arithmetic_v<Decayed>) {
+                    // 数值类型
+                    pstmt->setString(index, std::to_string(std::forward<T>(value)));
+                }
+                else if constexpr (std::is_same_v<Decayed, const char*> || std::is_same_v<Decayed, char*>) {
+                    // C 风格字符串
+                    pstmt->setString(index, std::string(value));
+                }
+                else if constexpr (std::is_same_v<Decayed, std::chrono::system_clock::time_point>) {
+                    auto t_c = std::chrono::system_clock::to_time_t(value);
+                    pstmt->setString(index, std::ctime(&t_c));
+                }
+                else {
+                    static_assert(always_false<Decayed>::value, "Unsupported parameter type in bindParams");
+                }
+
                 bindParams(pstmt, index + 1, std::forward<Args>(args)...);
             }
 
-            // 特化字符串类型
-            template<typename... Args>
-            void bindParams(sql::PreparedStatement* pstmt, int index, const std::string& value, Args&&... args) {
-                pstmt->setString(index, value);
-                bindParams(pstmt, index + 1, std::forward<Args>(args)...);
-            }
+            // 辅助模板，用于 static_assert
+            template<typename>
+            struct always_false : std::false_type {};
+
 
         private:
             std::shared_ptr<sql::Connection>    connection_;
@@ -80,7 +102,7 @@ namespace http {
             std::string                         user_;
             std::string                         password_;
             std::string                         database_;
-            std::mutex                          mutex_;     
+            std::mutex                          mutex_;
         };
     }
 }

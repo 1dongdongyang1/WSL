@@ -36,6 +36,14 @@ namespace http {
     }
 
     void HttpServer::start() {
+        if (useSsl_) {
+            ssl::SslConfig sslConfig;
+            sslConfig.setCertFile("/home/ddy/Projects/Http/example/server.crt");
+            sslConfig.setKeyFile("/home/ddy/Projects/Http/example/server.key");
+            sslConfig.setSSLVersion(ssl::SSLVersion::TLSv1_2);
+            setSslConfig(sslConfig);
+        }
+
         LOG_INFO << "HttpServer[" << server_.name() << "] starts listening on" << server_.ipPort();
         server_.start();
         mainLoop_.loop();
@@ -55,15 +63,35 @@ namespace http {
                 auto sslConn = std::make_unique<ssl::SslConnection>(conn, sslContext_.get());
                 sslConn->setMessageCallback(
                     std::bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+                sslConn->setDecryptedCallback(
+                    std::bind(&HttpServer::onDecryptedMessage, this,
+                        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
                 sslConnections_[conn] = std::move(sslConn);
                 sslConnections_[conn]->startHandshake();
             }
+
             conn->setContext(HttpContext());
         }
         else {
             if (useSsl_) {
                 sslConnections_.erase(conn);
             }
+        }
+    }
+
+    void HttpServer::onDecryptedMessage(const muduo::net::TcpConnectionPtr& conn,
+        muduo::net::Buffer* buf,
+        muduo::Timestamp receiveTime) {
+        HttpContext* context = boost::any_cast<HttpContext>(conn->getMutableContext());
+        if (!context->parseRequest(buf, receiveTime)) {
+            conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");
+            conn->shutdown();
+            return;
+        }
+
+        if (context->gotAll()) {
+            onRequest(conn, context->request());
+            context->reset();
         }
     }
 
@@ -77,19 +105,8 @@ namespace http {
                 auto it = sslConnections_.find(conn);
                 if (it != sslConnections_.end()) {
                     LOG_INFO << "Found SSL connection for TcpConnection";
-                    it->second->onRead(conn, buf, receiveTime);
-                    if (!it->second->isHandshakeComplete()) {
-                        LOG_INFO << "SSL handshake not complete, waiting for more data";
-                        return; // Wait until handshake is complete
-                    }
-                    // we can get data from decrypted buffer
-                    muduo::net::Buffer* decryptedBuf = it->second->getDecryptedBuffer();
-                    if (decryptedBuf->readableBytes() == 0) {
-                        LOG_INFO << "No decrypted data available, waiting for more data";
-                        return; // No decrypted data available yet
-                    }
-                    buf = decryptedBuf; // Switch to decrypted buffer for HTTP parsing
-                    LOG_INFO << "decrypted data is not empty";
+                    it->second->onTcpRead(conn, buf, receiveTime);
+                    return;
                 }
             }
             HttpContext* context = boost::any_cast<HttpContext>(conn->getMutableContext());
@@ -102,7 +119,7 @@ namespace http {
             }
 
             if (context->gotAll()) {
-                LOG_INFO << "HttpServer::onMessage gotAll";
+                // LOG_INFO << "HttpServer::onMessage gotAll";
                 onRequest(conn, context->request());
                 context->reset();
             }
@@ -119,7 +136,7 @@ namespace http {
         bool close = connection == "close" ||
             (request.version() == "HTTP/1.0" && connection != "Keep-Alive");
 
-        LOG_INFO << "request version: " << request.version();
+        // LOG_INFO << "request version: " << request.version();
         HttpResponse response(close);
         response.setVersion(request.version());
         handleRequest(request, &response);

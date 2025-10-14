@@ -62,6 +62,9 @@ namespace http {
         void onMessage(const muduo::net::TcpConnectionPtr& conn,
             muduo::net::Buffer* buf,
             muduo::Timestamp receiveTime);
+        void onDecryptedMessage(const muduo::net::TcpConnectionPtr& conn,
+            muduo::net::Buffer* buf,
+            muduo::Timestamp receiveTime);
         void onRequest(const muduo::net::TcpConnectionPtr& conn, const HttpRequest& request);
 
         void handleRequest(const HttpRequest& request, HttpResponse* response);

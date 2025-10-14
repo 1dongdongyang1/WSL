@@ -5,7 +5,8 @@
 namespace ssl {
 
     SslContext::SslContext(const SslConfig& config)
-    : ctx_(nullptr), config_(config) {}
+        : ctx_(nullptr), config_(config) {
+    }
 
     SslContext::~SslContext() {
         if (ctx_) {
@@ -31,6 +32,12 @@ namespace ssl {
             | SSL_OP_NO_COMPRESSION
             | SSL_OP_CIPHER_SERVER_PREFERENCE;
         SSL_CTX_set_options(ctx_, options);
+
+        SSL_CTX_set_info_callback(ctx_, [](const SSL* s, int where, int ret) {
+            if (where & SSL_CB_HANDSHAKE_START) LOG_INFO << "Handshake start\n";
+            if (where & SSL_CB_HANDSHAKE_DONE) LOG_INFO << "Handshake done\n";
+            });
+
 
         // load certificates
         if (!loadCertificates()) return false;
@@ -98,7 +105,7 @@ namespace ssl {
         }
 
         // Set cipher list
-        if(!config_.getCipherList().empty()) {
+        if (!config_.getCipherList().empty()) {
             if (SSL_CTX_set_cipher_list(ctx_, config_.getCipherList().c_str()) <= 0) {
                 handleOpenSSLErrors("Failed to set cipher list");
                 return false;

@@ -21,6 +21,8 @@ namespace http {
             // get
             std::string sessionId() const { return sessionId_; }
             SessionManager* sessionManager() const { return sessionManager_; }
+            std::unordered_map<std::string, std::string> data() const { return data_; }
+            std::chrono::system_clock::time_point expiryTime() const { return expiryTime_; }
 
             // set
             void setManager(SessionManager* manager) { sessionManager_ = manager; }
@@ -35,8 +37,8 @@ namespace http {
             std::string                                     sessionId_;
             SessionManager*                                 sessionManager_;
             int                                             maxAge_;            // 以秒为单位
-            std::unordered_map<std::string, std::string>    data_;
-            std::chrono::system_clock::time_point           lastAccessed_;
+            std::unordered_map<std::string, std::string>    data_;              // 会话数据
+            std::chrono::system_clock::time_point           expiryTime_;        // 过期时间
         };
 
     } // namespace session
