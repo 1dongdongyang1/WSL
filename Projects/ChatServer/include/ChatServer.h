@@ -11,6 +11,8 @@
 #include "http/utils/MysqlUtil.h"
 #include "http/utils/JsonUtil.h"
 
+#include "utils/AIHelper.h"
+
 /**
  * 业务逻辑
  * 1. 用户注册
@@ -19,11 +21,16 @@
  * 4. 用户与AI聊天
  */
 
+class ChatEntryHandler;
+class ChatMenuHandler;
+class ChatHandler;
+
 class ChatRegisterHandler;
 class ChatLoginHandler;
 class ChatLogoutHandler;
-class ChatMenuHandler;
-class ChatHandler;
+class ChatSendHandler;
+class ChatHistoryHandler;
+class ChatSessionHandler;
 
 
 /// @brief 聊天服务器
@@ -52,11 +59,16 @@ private:
     }
 
     // friend class
+    friend class ChatEntryHandler;
+    friend class ChatMenuHandler;
+    friend class ChatHandler;
+
     friend class ChatRegisterHandler;
     friend class ChatLoginHandler;
     friend class ChatLogoutHandler;
-    friend class ChatMenuHandler;
-    friend class ChatHandler;
+    friend class ChatSendHandler;
+    friend class ChatHistoryHandler;
+    friend class ChatSessionHandler;
 
 private:
     http::HttpServer    httpServer_;
@@ -64,4 +76,8 @@ private:
 
     std::unordered_map<int, bool> onlineUsers_; 
     std::mutex                    onlineUsersMutex_; 
+
+    // userId -> sessionId -> AIHelper -> chat history + strategy
+    std::unordered_map<int, std::unordered_map<std::string, std::shared_ptr<AIHelper>>> chatInformation_;
+    std::mutex                    chatInformationMutex_;
 };

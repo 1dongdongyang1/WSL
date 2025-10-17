@@ -14,7 +14,7 @@ namespace http {
         class DbConnectionPool {
         public:
             // 单例
-            static DbConnectionPool& getInstance() {
+            static DbConnectionPool& instance() {
                 static DbConnectionPool instance;
                 return instance;
             }

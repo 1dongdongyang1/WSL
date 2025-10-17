@@ -66,14 +66,19 @@ namespace http {
         }
 
         std::string DBSessionStorage::escapeString(const std::string& str) {
-            std::string out;
+            std::string escaped;
             for (char c : str) {
-                if (c == '\'') out += "\\'";
-                else if (c == '\"') out += "\\\"";
-                else if (c == '\\') out += "\\\\";
-                else out += c;
+                switch (c) {
+                case '\'': escaped += "\\'"; break;
+                case '\"': escaped += "\\\""; break;
+                case '\\': escaped += "\\\\"; break;
+                case '\n': escaped += "\\n"; break;
+                case '\r': escaped += "\\r"; break;
+                case '\t': escaped += "\\t"; break;
+                default: escaped += c; break;
+                }
             }
-            return out;
+            return escaped;
         }
 
     }

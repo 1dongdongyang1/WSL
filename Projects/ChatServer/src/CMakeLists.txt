@@ -1,4 +1,5 @@
 add_subdirectory(http)
+add_subdirectory(utils)
 add_subdirectory(handlers)
 
 add_executable(chatserver 
@@ -16,5 +17,6 @@ target_include_directories(chatserver PUBLIC
 
 target_link_libraries(chatserver PRIVATE
     http
+    utils
     handlers
 )

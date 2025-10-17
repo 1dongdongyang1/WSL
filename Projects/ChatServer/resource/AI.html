@@ -298,7 +298,7 @@
             try {
                 const res = await fetch('/chat/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
                 const data = await res.json();
-                if (data.success && data.url) { const audio = new Audio(data.url); audio.play(); }
+                if (data.status == 'success' && data.url) { const audio = new Audio(data.url); audio.play(); }
                 else alert('[错误] 无法获取语音');
             } catch (err) { console.error(err); alert('[错误] 请求语音接口失败'); }
         }
@@ -333,7 +333,7 @@
                 try {
                     const res = await fetch('/chat/history', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId: currentSessionId }) });
                     const data = await res.json();
-                    if (data.success && Array.isArray(data.history)) {
+                    if (data.status == 'success' && Array.isArray(data.history)) {
                         sessions[id].messages = [];
                         data.history.forEach(item => { sessions[id].messages.push({ role: item.is_user ? 'user' : 'assistant', content: item.content }); });
                     }
@@ -358,13 +358,14 @@
 
             if (tempSession) {
                 try {
-                    const response = await fetch('/chat/send-new-session', {
+                    // TODO
+                    const response = await fetch('/chat/send', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ question, modelType: modelTypeSelect.value })
                     });
                     const data = await response.json();
-                    if (data.success) {
+                    if (data.status == 'success') {
                         const sessionId = String(data.sessionId);
                         sessions[sessionId] = {
                             name: '新会话',
@@ -393,7 +394,7 @@
                         body: JSON.stringify({ question, modelType: modelTypeSelect.value, sessionId: currentSessionId })
                     });
                     const data = await response.json();
-                    if (data.success) {
+                    if (data.status == 'success') {
                         appendMessage('assistant', data.Information);
                         sessions[currentSessionId].messages.push({ role: 'assistant', content: data.Information });
                     } else {
@@ -420,7 +421,7 @@
                     body: JSON.stringify({ sessionId: currentSessionId })
                 });
                 const data = await res.json();
-                if (data.success && Array.isArray(data.history)) {
+                if (data.status == 'success' && Array.isArray(data.history)) {
                     sessions[currentSessionId].messages = [];
                     clearMessages();
                     data.history.forEach(item => {
@@ -440,7 +441,7 @@
             try {
                 const res = await fetch('/chat/sessions');
                 const data = await res.json();
-                if (data.success && Array.isArray(data.sessions)) {
+                if (data.status == 'success' && Array.isArray(data.sessions)) {
                     data.sessions.forEach(s => {
                         const sid = String(s.sessionId);
                         sessions[sid] = { name: s.name || `会话 ${sid}`, messages: [] };

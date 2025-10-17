@@ -11,7 +11,9 @@ target_include_directories(handlers
         ${CMAKE_SOURCE_DIR}/include
 )
 
+
 target_link_libraries(handlers
     PUBLIC
         http
+        utils
 )

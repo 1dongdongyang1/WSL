@@ -1,7 +1,6 @@
-#include "handlers/ChatHandler.h"
-#include "http/utils/FileUtil.h"
+#include "handlers/ChatHistoryHandler.h"
 
-void ChatHandler::handle(const http::HttpRequest& request, http::HttpResponse* response) {
+void ChatHistoryHandler::handle(const http::HttpRequest& request, http::HttpResponse* response) {
     try {
         auto session = server_->getSessionManager()->getSession(request, response);
         if(session->get("isLoggedIn") != "true") {
@@ -21,28 +20,42 @@ void ChatHandler::handle(const http::HttpRequest& request, http::HttpResponse* r
         int userId = std::stoi(session->get("userId"));
         std::string username = session->get("username");
 
-        std::string reqFile("/home/ddy/Projects/ChatServer/resource/AI.html");
-        FileUtil fileOperator(reqFile);
-        if (!fileOperator.isValid()) {
-            LOG_WARN << "File not found: " << reqFile;
-            fileOperator.resetDefaultFile("/home/ddy/Projects/ChatServer/resource/404.html");
+        std::string sessionId;
+        auto body = request.content();
+        if(!body.empty()) {
+            json requestBody = json::parse(body);
+            sessionId = requestBody["sessionId"];
         }
 
-        std::vector<char> buffer;
-        fileOperator.readFile(buffer);
-        std::string body(buffer.begin(), buffer.end());
-
-        size_t headEnd = body.find("</head>");
-        if (headEnd != std::string::npos) {
-            std::string userInfo = "<script>const userId = " + std::to_string(userId) + 
-                                   "; const username = '" + username + "';</script>\n";
-            body.insert(headEnd, userInfo);
+        std::vector<std::pair<std::string, long long>> chatHistory;
+        std::shared_ptr<AIHelper> AIHelperPtr;
+        {
+            std::lock_guard<std::mutex> lock(server_->chatInformationMutex_);
+            auto& userSessions = server_->chatInformation_[userId];
+            if(userSessions.find(sessionId) == userSessions.end()) {
+                userSessions[sessionId] = std::make_shared<AIHelper>();
+            }
+            AIHelperPtr = userSessions[sessionId];
+            chatHistory = AIHelperPtr->getMessages();
         }
+
+        json successResp;
+        successResp["status"] = "success";
+        successResp["history"] = json::array();
+
+        for(size_t i = 0; i < chatHistory.size(); ++i) {
+            json messageJson;
+            messageJson["is_user"] = (i % 2 == 0);
+            messageJson["content"] = chatHistory[i].first;
+            successResp["history"].push_back(messageJson);
+        }
+
+        std::string respBody = successResp.dump();
 
         response->setStatusLine(request.version(), http::HttpResponse::k200OK, "OK");
         response->setContentType("text/html");
-        response->setContentLength(body.size());
-        response->setBody(body);
+        response->setContentLength(respBody.size());
+        response->setBody(respBody);
         response->setCloseConnection(false);
     }
     catch (const std::exception& e) {

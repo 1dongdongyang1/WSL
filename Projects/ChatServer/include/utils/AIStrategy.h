@@ -22,7 +22,15 @@ public:
 
 class AliyunStrategy : public AIStrategy {
 public:
-    AliyunStrategy();
+    AliyunStrategy() {
+        const char* key = std::getenv("DASHSCOPE_API_KEY");
+        if(!key) {
+            throw std::runtime_error("Aliyun API key not found!");
+        }
+        apiKey_ = key;
+        isMCPModel = false;
+    }
+
     std::string getApiUrl() const override;
     std::string getApiKey() const override;
     std::string getModel() const override;
@@ -34,7 +42,15 @@ private:
 
 class DouBaoStrategy : public AIStrategy {
 public:
-    DouBaoStrategy();
+    DouBaoStrategy() {
+        const char* key = std::getenv("DOUBAO_API_KEY");
+        if(!key) {
+            throw std::runtime_error("DouBao API key not found!");
+        }
+        apiKey_ = key;
+        isMCPModel = false;
+    }
+
     std::string getApiUrl() const override;
     std::string getApiKey() const override;
     std::string getModel() const override;
@@ -46,7 +62,15 @@ private:
 
 class AliyunMCPStrategy : public AIStrategy {
 public:
-    AliyunMCPStrategy();
+    AliyunMCPStrategy() {
+        const char* key = std::getenv("DASHSCOPE_API_KEY");
+        if(!key) {
+            throw std::runtime_error("Aliyun API key not found!");
+        }
+        apiKey_ = key;
+        isMCPModel = true;
+    }
+
     std::string getApiUrl() const override;
     std::string getApiKey() const override;
     std::string getModel() const override;
@@ -58,7 +82,15 @@ private:
 
 class AliyunRAGStrategy : public AIStrategy {
 public:
-    AliyunRAGStrategy();
+    AliyunRAGStrategy() {
+        const char* key = std::getenv("DASHSCOPE_API_KEY");
+        if(!key) {
+            throw std::runtime_error("Aliyun API key not found!");
+        }
+        apiKey_ = key;
+        isMCPModel = false;
+    }
+
     std::string getApiUrl() const override;
     std::string getApiKey() const override;
     std::string getModel() const override;
