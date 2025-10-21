@@ -1,10 +1,10 @@
-#include "handlers/ChatSendHandler.h"
+#include "handlers/ChatCreateAndSendHandler.h"
 #include "utils/AISessionIdGenerator.h"
 #include "utils/LogUtil.h"
 
-void ChatSendHandler::handle(const http::HttpRequest& request, http::HttpResponse* response) {
+void ChatCreateAndSendHandler::handle(const http::HttpRequest& request, http::HttpResponse* response) {
     try {
-        APP_LOG_INFO("ChatSendHandler called");
+        APP_LOG_INFO("ChatCreateAndSendHandler called");
 
         auto session = server_->getSessionManager()->getSession(request, response);
         if (session->get("isLoggedIn") != "true") {
@@ -26,33 +26,27 @@ void ChatSendHandler::handle(const http::HttpRequest& request, http::HttpRespons
 
         std::string userQuestion;
         std::string modelType;
-        std::string sessionId;
 
         auto body = request.content();
-        if(!body.empty()) {
+        if (!body.empty()) {
             auto reqJson = json::parse(body);
             userQuestion = reqJson["question"];
-            sessionId = reqJson.value("sessionId", "default");
             modelType = reqJson.value("modelType", "1");
         }
 
-        json successResp;
-        // first session
-        if (sessionId == "default") {
-            sessionId = AISessionIdGenerator().generate();
-            successResp["sessionId"] = sessionId;
-        }
+        std::string sessionId = AISessionIdGenerator().generate();
 
         std::shared_ptr<AIHelper> AIHelperPtr;
         {
             std::lock_guard<std::mutex> lock(server_->chatInformationMutex_);
-            auto& userSessions = server_->chatInformation_[userId]; 
-            if(userSessions.find(sessionId) == userSessions.end()) {
+            auto& userSessions = server_->chatInformation_[userId];
+            if (userSessions.find(sessionId) == userSessions.end()) {
                 userSessions[sessionId] = std::make_shared<AIHelper>();
             }
             AIHelperPtr = userSessions[sessionId];
         }
 
+        json successResp;
         std::string aiInformation = AIHelperPtr->chat(userId, username, sessionId, userQuestion, modelType);
         successResp["status"] = "success";
         successResp["Information"] = aiInformation;

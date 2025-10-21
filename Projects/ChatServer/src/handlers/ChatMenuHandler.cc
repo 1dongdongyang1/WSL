@@ -34,8 +34,7 @@ void ChatMenuHandler::handle(const http::HttpRequest& request, http::HttpRespons
 
         size_t headEnd = body.find("</head>");
         if (headEnd != std::string::npos) {
-            std::string userInfo = "<script>const userId = " + std::to_string(userId) + 
-                                   "; const username = '" + username + "';</script>\n";
+            std::string userInfo = "<script>const userId = '" + std::to_string(userId) + "';</script>\n";
             body.insert(headEnd, userInfo);
         }
 

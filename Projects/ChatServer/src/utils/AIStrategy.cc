@@ -32,3 +32,5 @@ std::string AliyunStrategy::parseResponse(const json& response) const {
     }
     return "";
 }
+
+static StrategyRegister<AliyunStrategy> registerAliyunStrategy("Aliyun");

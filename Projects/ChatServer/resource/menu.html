@@ -188,8 +188,10 @@
         // 进入AI服务
         function loadService(path, errorMsg) {
             fetch(path, { method: 'GET', headers: { 'Accept': 'text/html' } })
-                .then(res => res.text())
-                .then(html => { document.open(); document.write(html); document.close(); })
+                .then(res => {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    window.location.href = path;
+                })
                 .catch(() => alert(errorMsg));
         }
 
@@ -217,14 +219,14 @@
         });
 
         // 页面刷新/关闭时自动登出
-        window.addEventListener('beforeunload', function () {
-            const userId = sessionStorage.getItem('userId');
-            if (userId) {
-                const data = new Blob([JSON.stringify({ userId: userId, type: 'refresh', gameType: 0 })],
-                    { type: 'application/json' });
-                navigator.sendBeacon('/user/logout', data);
-            }
-        });
+        // window.addEventListener('beforeunload', function () {
+        //     const userId = sessionStorage.getItem('userId');
+        //     if (userId) {
+        //         const data = new Blob([JSON.stringify({ userId: userId, type: 'refresh', gameType: 0 })],
+        //             { type: 'application/json' });
+        //         navigator.sendBeacon('/user/logout', data);
+        //     }
+        // });
 
         // 页面加载时用户检查
         window.addEventListener('load', function () {

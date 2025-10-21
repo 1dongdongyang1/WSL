@@ -359,7 +359,7 @@
             if (tempSession) {
                 try {
                     // TODO
-                    const response = await fetch('/chat/send', {
+                    const response = await fetch('/chat/send-new-session', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ question, modelType: modelTypeSelect.value })
