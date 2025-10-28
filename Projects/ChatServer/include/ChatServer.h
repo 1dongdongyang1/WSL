@@ -31,7 +31,6 @@ class ChatLogoutHandler;
 class ChatSendHandler;
 class ChatHistoryHandler;
 class ChatSessionHandler;
-class ChatCreateAndSendHandler;
 
 
 /// @brief 聊天服务器
@@ -70,7 +69,6 @@ private:
     friend class ChatSendHandler;
     friend class ChatHistoryHandler;
     friend class ChatSessionHandler;
-    friend class ChatCreateAndSendHandler;
 
 private:
     http::HttpServer    httpServer_;

@@ -10,7 +10,6 @@
 #include "handlers/ChatSendHandler.h"
 #include "handlers/ChatHistoryHandler.h"
 #include "handlers/ChatSessionHandler.h"
-#include "handlers/ChatCreateAndSendHandler.h"
 
 #include "utils/LogUtil.h"
 
@@ -68,8 +67,6 @@ void ChatServer::initRouter() {
         std::make_shared<ChatSendHandler>(this));
     httpServer_.Post("/chat/history",
         std::make_shared<ChatHistoryHandler>(this));
-    httpServer_.Post("/chat/send-new-session",
-        std::make_shared<ChatCreateAndSendHandler>(this));
 }
 
 void ChatServer::initMiddleware() {

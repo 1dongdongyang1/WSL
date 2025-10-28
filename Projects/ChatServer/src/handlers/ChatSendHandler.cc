@@ -32,15 +32,15 @@ void ChatSendHandler::handle(const http::HttpRequest& request, http::HttpRespons
         if(!body.empty()) {
             auto reqJson = json::parse(body);
             userQuestion = reqJson["question"];
-            sessionId = reqJson.value("sessionId", "default");
+            sessionId = reqJson.value("sessionId", "");
             modelType = reqJson.value("modelType", "1");
         }
 
-        json successResp;
-        // first session
-        if (sessionId == "default") {
+        // 如果没有提供 sessionId 或 sessionId 为空，创建新会话
+        bool isNewSession = false;
+        if (sessionId.empty() || sessionId == "temp" || sessionId == "default") {
             sessionId = AISessionIdGenerator().generate();
-            successResp["sessionId"] = sessionId;
+            isNewSession = true;
         }
 
         std::shared_ptr<AIHelper> AIHelperPtr;
@@ -54,7 +54,10 @@ void ChatSendHandler::handle(const http::HttpRequest& request, http::HttpRespons
         }
 
         std::string aiInformation = AIHelperPtr->chat(userId, username, sessionId, userQuestion, modelType);
+        
+        json successResp;
         successResp["status"] = "success";
+        successResp["sessionId"] = sessionId;
         successResp["Information"] = aiInformation;
         std::string respBody = successResp.dump();
 

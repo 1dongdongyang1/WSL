@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <title>AI 聊天助手</title>
@@ -24,9 +25,9 @@
             width: 240px;
             display: flex;
             flex-direction: column;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(6px);
-            border-right: 1px solid rgba(255,255,255,0.2);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
         }
 
@@ -34,8 +35,8 @@
             padding: 15px;
             text-align: center;
             font-weight: bold;
-            background: rgba(0,0,0,0.3);
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .new-chat-btn {
@@ -53,11 +54,11 @@
             transition: all 0.3s;
         }
 
-            .new-chat-btn:hover {
-                background: #00e1ff;
-                box-shadow: 0 0 15px #00e1ff;
-                transform: scale(1.05);
-            }
+        .new-chat-btn:hover {
+            background: #00e1ff;
+            box-shadow: 0 0 15px #00e1ff;
+            transform: scale(1.05);
+        }
 
         .session-list ul {
             list-style: none;
@@ -70,20 +71,20 @@
         .session-list li {
             padding: 12px 15px;
             cursor: pointer;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             transition: background 0.2s;
         }
 
-            .session-list li.active {
-                background: #00c3ff;
-                color: #fff;
-                font-weight: 500;
-                box-shadow: 0 0 8px #00c3ff;
-            }
+        .session-list li.active {
+            background: #00c3ff;
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 0 8px #00c3ff;
+        }
 
-            .session-list li:hover {
-                background: rgba(0,195,255,0.2);
-            }
+        .session-list li:hover {
+            background: rgba(0, 195, 255, 0.2);
+        }
 
         /* 右侧聊天区 */
         .chat-section {
@@ -97,39 +98,40 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(6px);
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 1;
         }
 
-            .top-bar button, .top-bar select {
-                padding: 6px 12px;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 14px;
-                transition: all 0.3s;
-            }
+        .top-bar button,
+        .top-bar select {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
 
-            .top-bar button {
-                background: #00c3ff;
-                color: #fff;
-                font-weight: bold;
-                box-shadow: 0 0 8px #00c3ff;
-            }
+        .top-bar button {
+            background: #00c3ff;
+            color: #fff;
+            font-weight: bold;
+            box-shadow: 0 0 8px #00c3ff;
+        }
 
-                .top-bar button:hover {
-                    background: #00e1ff;
-                    box-shadow: 0 0 15px #00e1ff;
-                    transform: scale(1.05);
-                }
+        .top-bar button:hover {
+            background: #00e1ff;
+            box-shadow: 0 0 15px #00e1ff;
+            transform: scale(1.05);
+        }
 
-            .top-bar select {
-                background: #fff;
-                color: #111;
-                font-weight: bold;
-            }
+        .top-bar select {
+            background: #fff;
+            color: #111;
+            font-weight: bold;
+        }
 
         .chat-container {
             flex: 1;
@@ -138,7 +140,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(6px);
         }
 
@@ -148,7 +150,7 @@
             border-radius: 16px;
             line-height: 1.5;
             word-wrap: break-word;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             animation: fadeIn 0.3s ease;
             position: relative;
         }
@@ -161,7 +163,7 @@
         }
 
         .assistant {
-            background: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.9);
             color: #111;
             align-self: flex-start;
             border-bottom-left-radius: 4px;
@@ -170,9 +172,9 @@
         .input-box {
             display: flex;
             padding: 12px 15px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(6px);
-            border-top: 1px solid rgba(255,255,255,0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
             gap: 12px;
         }
 
@@ -183,17 +185,17 @@
             padding: 12px;
             font-size: 14px;
             outline: none;
-            border: 1px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
             transition: all 0.2s;
         }
 
-            textarea:focus {
-                border-color: #00c3ff;
-                box-shadow: 0 0 8px #00c3ff;
-                background: rgba(255,255,255,0.15);
-            }
+        textarea:focus {
+            border-color: #00c3ff;
+            box-shadow: 0 0 8px #00c3ff;
+            background: rgba(255, 255, 255, 0.15);
+        }
 
         button[type="submit"] {
             background: #00c3ff;
@@ -202,11 +204,11 @@
             box-shadow: 0 0 8px #00c3ff;
         }
 
-            button[type="submit"]:hover {
-                background: #00e1ff;
-                box-shadow: 0 0 15px #00e1ff;
-                transform: scale(1.05);
-            }
+        button[type="submit"]:hover {
+            background: #00e1ff;
+            box-shadow: 0 0 15px #00e1ff;
+            transform: scale(1.05);
+        }
 
         .tts-btn {
             padding: 6px 10px;
@@ -219,22 +221,22 @@
             transition: all 0.2s;
         }
 
-            .tts-btn:hover {
-                background: #1e7e34;
-            }
+        .tts-btn:hover {
+            background: #1e7e34;
+        }
 
         ::-webkit-scrollbar {
             width: 8px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
             border-radius: 4px;
         }
 
-            ::-webkit-scrollbar-thumb:hover {
-                background: rgba(255,255,255,0.5);
-            }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
 
         @keyframes fadeIn {
             from {
@@ -252,6 +254,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.0/dist/purify.min.js"></script>
 </head>
+
 <body>
     <div class="session-list">
         <div class="session-list-header">
@@ -283,7 +286,7 @@
     </div>
 
     <script>
-        
+
         let currentSessionId = null, tempSession = false;
         const sessions = {};
         const sessionList = document.getElementById('sessionList');
@@ -356,54 +359,46 @@
 
             appendMessage('user', question);
 
-            if (tempSession) {
-                try {
-                    // TODO
-                    const response = await fetch('/chat/send-new-session', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ question, modelType: modelTypeSelect.value })
-                    });
-                    const data = await response.json();
-                    if (data.status == 'success') {
-                        const sessionId = String(data.sessionId);
-                        sessions[sessionId] = {
+            // 统一使用 /chat/send 接口
+            const sessionIdToSend = tempSession ? '' : currentSessionId;
+
+            try {
+                const response = await fetch('/chat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question,
+                        modelType: modelTypeSelect.value,
+                        sessionId: sessionIdToSend
+                    })
+                });
+                const data = await response.json();
+                if (data.status == 'success') {
+                    if (tempSession || sessionIdToSend === '') {
+                        // 新会话：获取返回的 sessionId 并创建会话
+                        const returnedSessionId = String(data.sessionId);
+                        sessions[returnedSessionId] = {
                             name: '新会话',
                             messages: [
                                 { role: 'user', content: question },
                                 { role: 'assistant', content: data.Information }
                             ]
                         };
-                        currentSessionId = sessionId;
+                        currentSessionId = returnedSessionId;
                         tempSession = false;
                         renderSessionList();
-                        appendMessage('assistant', data.Information);
                     } else {
-                        appendMessage('assistant', '[错误] ' + (data.message || '未知错误'));
-                    }
-                } catch (err) {
-                    console.error(err);
-                    appendMessage('assistant', '[错误] 无法连接到服务器');
-                }
-            } else {
-                sessions[currentSessionId].messages.push({ role: 'user', content: question });
-                try {
-                    const response = await fetch('/chat/send', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ question, modelType: modelTypeSelect.value, sessionId: currentSessionId })
-                    });
-                    const data = await response.json();
-                    if (data.status == 'success') {
-                        appendMessage('assistant', data.Information);
+                        // 已有会话：更新消息历史
+                        sessions[currentSessionId].messages.push({ role: 'user', content: question });
                         sessions[currentSessionId].messages.push({ role: 'assistant', content: data.Information });
-                    } else {
-                        appendMessage('assistant', '[错误] ' + (data.message || '未知错误'));
                     }
-                } catch (err) {
-                    console.error(err);
-                    appendMessage('assistant', '[错误] 无法连接到服务器');
+                    appendMessage('assistant', data.Information);
+                } else {
+                    appendMessage('assistant', '[错误] ' + (data.message || '未知错误'));
                 }
+            } catch (err) {
+                console.error(err);
+                appendMessage('assistant', '[错误] 无法连接到服务器');
             }
 
             questionInput.value = '';
@@ -456,4 +451,5 @@
         loadSessions();
     </script>
 </body>
+
 </html>
