@@ -14,14 +14,15 @@ type Context struct {
 	Req    *http.Request
 
 	// request info
-	Path   string
-	Method string
+	Path   string					
+	Method string					
+	Params map[string]string 		
 
 	// response info
 	StatusCode int
 }
 
-func NewContext(w http.ResponseWriter, req *http.Request) *Context {
+func newContext(w http.ResponseWriter, req *http.Request) *Context {
 	return &Context{
 		Writer: w,
 		Req:    req,
