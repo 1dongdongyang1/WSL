@@ -14,27 +14,41 @@ type Context struct {
 	Req    *http.Request
 
 	// request info
-	Path   string
-	Method string
+	Path   string					
+	Method string					
+	Params map[string]string 		
 
 	// response info
 	StatusCode int
+
+	// middleware
+	handlers []HandlerFunc
+	index    int
 }
 
-func NewContext(w http.ResponseWriter, req *http.Request) *Context {
+func newContext(w http.ResponseWriter, req *http.Request) *Context {
 	return &Context{
 		Writer: w,
 		Req:    req,
 		Path:   req.URL.Path,
 		Method: req.Method,
+		index:  -1,
 	}
 }
 
-func (c *Context) PostForm(key string) string {		// 获取POST表单数据
+func (c *Context) Next() {
+	c.index++
+	s := len(c.handlers)
+	for ; c.index < s; c.index++ {
+		c.handlers[c.index](c)
+	}
+}
+
+func (c *Context) PostForm(key string) string {	
 	return c.Req.FormValue(key)
 }	
 
-func (c *Context) Query(key string) string {		// 获取URL查询参数
+func (c *Context) Query(key string) string {
 	return c.Req.URL.Query().Get(key)
 }
 
@@ -71,4 +85,9 @@ func (c *Context) HTML(code int, html string) {
 	c.SetHeader("Content-Type", "text/html")
 	c.Status(code)
 	c.Writer.Write([]byte(html))
+}
+
+func (c *Context) Fail(code int, err string) {
+	c.index = len(c.handlers)
+	c.JSON(code, H{"message": err})
 }
