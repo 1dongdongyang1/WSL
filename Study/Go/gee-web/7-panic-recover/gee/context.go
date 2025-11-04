@@ -1,9 +1,9 @@
 package gee
 
 import (
-	"net/http"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"net/http"
 )
 
 type H map[string]interface{}
@@ -14,9 +14,9 @@ type Context struct {
 	Req    *http.Request
 
 	// request info
-	Path   string					
-	Method string					
-	Params map[string]string 		
+	Path   string
+	Method string
+	Params map[string]string
 
 	// response info
 	StatusCode int
@@ -46,9 +46,9 @@ func (c *Context) Next() {
 	}
 }
 
-func (c *Context) PostForm(key string) string {	
+func (c *Context) PostForm(key string) string {
 	return c.Req.FormValue(key)
-}	
+}
 
 func (c *Context) Query(key string) string {
 	return c.Req.URL.Query().Get(key)
@@ -75,7 +75,7 @@ func (c *Context) SetHeader(key string, value string) {
 func (c *Context) String(code int, format string, values ...interface{}) {
 	c.SetHeader("Content-Type", "text/plain")
 	c.Status(code)
-	c.Writer.Write([]byte(fmt.Sprintf(format, values...)))
+	fmt.Fprintf(c.Writer, format, values...)
 }
 
 func (c *Context) JSON(code int, obj interface{}) {
